@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Online Exam</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .hidden { display: none; }
+    .question { margin-bottom: 20px; }
+    button { padding: 10px 15px; margin-top: 10px; }
+    #timer { font-weight: bold; color: red; }
+  </style>
+</head>
+<body>
+  <h2>Student Exam</h2>
+  <div id="loginDiv">
+    <label>Name: <input type="text" id="studentName"></label><br><br>
+    <button onclick="startExam()">Start Exam</button>
+  </div>
+
+  <div id="examDiv" class="hidden">
+    <div id="timer">Time Left: 300s</div>
+    <form id="examForm">
+      <div class="question">
+        <p>1. What is 2 + 2?</p>
+        <input type="radio" name="q1" value="3">3
+        <input type="radio" name="q1" value="4">4
+        <input type="radio" name="q1" value="5">5
+      </div>
+      <div class="question">
+        <p>2. What is the capital of India?</p>
+        <input type="radio" name="q2" value="Delhi">Delhi
+        <input type="radio" name="q2" value="Mumbai">Mumbai
+        <input type="radio" name="q2" value="Kolkata">Kolkata
+      </div>
+      <!-- Add remaining questions similarly (up to 10) -->
+      <button type="button" onclick="submitExam()">Submit</button>
+    </form>
+  </div>
+
+  <div id="thankYouDiv" class="hidden">
+    <h3>Thank you! Exam submitted successfully.</h3>
+  </div>
+
+  <div id="teacherDiv">
+    <button onclick="downloadResults()">Download Results (CSV)</button>
+  </div>
+
+  <script>
+    let timerInterval;
+    let timeLeft = 300; // 5 minutes
+    let results = [];
+
+    function startExam() {
+      const name = document.getElementById("studentName").value;
+      if (!name) { alert("Please enter your name"); return; }
+      document.getElementById("loginDiv").classList.add("hidden");
+      document.getElementById("examDiv").classList.remove("hidden");
+      startTimer();
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        document.getElementById("timer").innerText = "Time Left: " + timeLeft + "s";
+        timeLeft--;
+        if (timeLeft < 0) {
+          clearInterval(timerInterval);
+          submitExam();
+        }
+      }, 1000);
+    }
+
+    function submitExam() {
+      clearInterval(timerInterval);
+      const form = document.getElementById("examForm");
+      const formData = new FormData(form);
+      const answers = {};
+      formData.forEach((val, key) => { answers[key] = val; });
+
+      results.push({
+        name: document.getElementById("studentName").value,
+        answers: answers,
+        submittedAt: new Date().toLocaleString()
+      });
+
+      document.getElementById("examDiv").classList.add("hidden");
+      document.getElementById("thankYouDiv").classList.remove("hidden");
+    }
+
+    function downloadResults() {
+      let csv = "Name,Submitted At,Answers\n";
+      results.forEach(r => {
+        csv += `${r.name},${r.submittedAt},${JSON.stringify(r.answers)}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "results.csv";
+      link.click();
+    }
+  </script>
+</body>
+</html>
