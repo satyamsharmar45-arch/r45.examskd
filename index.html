@@ -1,104 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Online Exam</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Online Exam – ICC Men's T20 World Cup 2024</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .hidden { display: none; }
-    .question { margin-bottom: 20px; }
-    button { padding: 10px 15px; margin-top: 10px; }
-    #timer { font-weight: bold; color: red; }
+    :root{
+      --primary:#2563eb; /* blue */
+      --accent:#10b981;  /* emerald */
+      --danger:#ef4444;  /* red */
+      --bg:#0f172a;      /* slate-900 */
+      --card:#111827;    /* gray-900 */
+      --muted:#9ca3af;   /* gray-400 */
+      --ring:rgba(37, 99, 235, .35);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;color:#fff;background:
+      radial-gradient(60rem 60rem at -10% -10%, #1e293b 0, #0b1221 45%, #020617 100%)}
+    .container{max-width:900px;margin:40px auto;padding:0 20px}
+    header{background:linear-gradient(135deg, var(--primary), #7c3aed);
+      border-radius:22px;padding:26px 22px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    header h1{margin:0 0 6px;font-size:28px}
+    header p{margin:0;color:#e5e7eb}
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:20px;margin:22px 0;
+      box-shadow:0 12px 30px rgba(0,0,0,.35);backdrop-filter:blur(6px)}
+
+    label{display:block;margin:10px 0 6px;color:#e5e7eb;font-weight:600}
+    input[type=text]{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+      background:#0b1221;color:#fff;outline:none}
+    input[type=text]:focus{border-color:var(--primary);box-shadow:0 0 0 6px var(--ring)}
+
+    .btn{appearance:none;border:none;border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer;
+      transition:.2s transform ease, .2s opacity ease;box-shadow:0 8px 18px rgba(0,0,0,.35)}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),#3b82f6);color:#fff}
+    .btn-danger{background:linear-gradient(135deg,var(--danger),#f87171);color:#fff}
+    .btn-muted{background:linear-gradient(135deg,#374151,#1f2937);color:#e5e7eb}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+
+    .timer{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:#fef3c7}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;
+      background:#0b1221;border:1px solid rgba(255,255,255,.08)}
+
+    .question{border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;margin:14px 0;
+      background:rgba(2,6,23,.6)}
+    .question h3{margin:0 0 10px;font-size:16px}
+    .option{display:flex;gap:10px;align-items:baseline;padding:7px 10px;border-radius:10px;}
+    .option:hover{background:rgba(255,255,255,.05)}
+
+    .hidden{display:none}
+    .muted{color:var(--muted)}
+    .footer-note{font-size:12px;color:#cbd5e1}
+
+    /* simple progress bar */
+    .progress{height:8px;background:#111827;border-radius:999px;overflow:hidden;margin:8px 0 0}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,#22d3ee,var(--accent));transition:width .2s}
+
+    @media (prefers-color-scheme: light){
+      body{color:#0f172a;background:#f4f7fb}
+      .card{color:#0f172a;background:#fff;border-color:#e5e7eb}
+      input[type=text]{background:#fff;color:#111827;border-color:#d1d5db}
+      .pill{background:#fff;border-color:#e5e7eb}
+      .question{background:#fff}
+      .footer-note{color:#475569}
+    }
   </style>
 </head>
 <body>
-  <h2>Student Exam</h2>
-  <div id="loginDiv">
-    <label>Name: <input type="text" id="studentName"></label><br><br>
-    <button onclick="startExam()">Start Exam</button>
-  </div>
+  <div class="container">
+    <header class="card">
+      <h1>ICC Men's T20 World Cup 2024 – Online Exam</h1>
+      <p>Fill your details, attempt all questions, and submit before the timer ends. Results will be announced by the teacher.</p>
+      <div class="progress"><div id="progressBar" class="bar"></div></div>
+    </header>
 
-  <div id="examDiv" class="hidden">
-    <div id="timer">Time Left: 300s</div>
-    <form id="examForm">
-      <div class="question">
-        <p>1. What is 2 + 2?</p>
-        <input type="radio" name="q1" value="3">3
-        <input type="radio" name="q1" value="4">4
-        <input type="radio" name="q1" value="5">5
+    <!-- Registration -->
+    <section id="regCard" class="card">
+      <h2>Student Details</h2>
+      <label for="name">Full Name *</label>
+      <input id="name" type="text" placeholder="e.g. Satyam Kumar" required>
+      <label for="roll">Roll Number *</label>
+      <input id="roll" type="text" placeholder="e.g. 21" required>
+      <label for="klass">Class *</label>
+      <input id="klass" type="text" placeholder="e.g. 9" required>
+      <label for="school">School Name *</label>
+      <input id="school" type="text" placeholder="e.g. ABC Public School" required>
+      <div class="actions" style="margin-top:14px">
+        <button class="btn btn-primary" id="startBtn">Start Exam</button>
       </div>
-      <div class="question">
-        <p>2. What is the capital of India?</p>
-        <input type="radio" name="q2" value="Delhi">Delhi
-        <input type="radio" name="q2" value="Mumbai">Mumbai
-        <input type="radio" name="q2" value="Kolkata">Kolkata
+      <p class="footer-note">Press <strong>Ctrl + T</strong> (teacher password) to open teacher panel on your own device.</p>
+    </section>
+
+    <!-- Quiz -->
+    <section id="quizCard" class="card hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <h2 style="margin:0">Exam</h2>
+        <div class="timer pill">⏳ <span id="timer">--:--</span></div>
       </div>
-      <!-- Add remaining questions similarly (up to 10) -->
-      <button type="button" onclick="submitExam()">Submit</button>
-    </form>
+      <div id="questions"></div>
+      <div class="actions">
+        <button class="btn btn-danger" id="submitBtn">Submit</button>
+      </div>
+    </section>
+
+    <!-- Thank You -->
+    <section id="thankCard" class="card hidden">
+      <h2>✅ Thank you!</h2>
+      <p>Your answers have been submitted successfully. The teacher will share your result later.</p>
+    </section>
+
+    <!-- Teacher Panel (hidden) -->
+    <section id="teacherCard" class="card hidden">
+      <h2>Teacher Panel</h2>
+      <div class="actions">
+        <button class="btn btn-muted" id="downloadCsvBtn">Download Results (CSV)</button>
+        <button class="btn btn-muted" id="clearBtn">Clear Stored Results (this device)</button>
+      </div>
+      <p class="muted" style="margin-top:8px">Results shown here are only those collected on <em>this</em> device via local storage. To collect centrally from all students, set a webhook URL in the code (Google Apps Script / serverless) so submissions are posted to your sheet/server.</p>
+    </section>
   </div>
 
-  <div id="thankYouDiv" class="hidden">
-    <h3>Thank you! Exam submitted successfully.</h3>
-  </div>
+<script>
+  // ========= CONFIG =========
+  const TIME_LIMIT_MINUTES = 15;      // timer
+  const TEACHER_PASSWORD = 'teacher123';
+  // Optional: set a webhook endpoint to receive submissions (e.g., Google Apps Script web app URL)
+  // If left empty string, nothing will be posted and results will only be saved locally on the student's browser
+  const RESULTS_WEBHOOK = '';
 
-  <div id="teacherDiv">
-    <button onclick="downloadResults()">Download Results (CSV)</button>
-  </div>
+  // ========= QUESTIONS (T20 WC 2024) =========
+  // Each { q: 'text', options: [...], answer: index }
+  const QUESTIONS = [
+    { q: 'Which team won the ICC Men\'s T20 World Cup 2024?', options: ['Australia','England','India','South Africa'], answer: 2 },
+    { q: 'Who were the runners-up in the 2024 T20 World Cup final?', options: ['Pakistan','South Africa','England','Afghanistan'], answer: 1 },
+    { q: 'Where was the 2024 T20 World Cup final played?', options: ['Wankhede, Mumbai','Kensington Oval, Barbados','SCG, Sydney','Eden Park, Auckland'], answer: 1 },
+    { q: 'Player of the Match in the final (2024) was?', options: ['Rohit Sharma','Suryakumar Yadav','Jasprit Bumrah','Virat Kohli'], answer: 3 },
+    { q: 'Player of the Tournament (2024) was?', options: ['Jasprit Bumrah','Rashid Khan','Heinrich Klaasen','Rahmanullah Gurbaz'], answer: 0 },
+    { q: 'Highest run-scorer of the tournament (Most runs) in 2024?', options: ['Virat Kohli','Rohit Sharma','Rahmanullah Gurbaz','Travis Head'], answer: 2 },
+    { q: 'Highest wicket-taker of the tournament (Most wickets) in 2024?', options: ['Fazalhaq Farooqi','Arshdeep Singh','Jasprit Bumrah','Anrich Nortje'], answer: 0 },
+    { q: 'India defeated which team in the semi-final of 2024?', options: ['England','Australia','Pakistan','New Zealand'], answer: 0 },
+    { q: 'South Africa defeated which team in their semi-final of 2024?', options: ['Afghanistan','Australia','West Indies','New Zealand'], answer: 0 },
+    { q: 'Which two regions co-hosted the 2024 T20 World Cup?', options: ['India & Sri Lanka','USA & West Indies','England & Wales','Australia & New Zealand'], answer: 1 },
+    { q: 'India\'s captain for the 2024 T20 World Cup was?', options: ['Hardik Pandya','Rohit Sharma','KL Rahul','Shikhar Dhawan'], answer: 1 },
+    { q: 'Which Indian bowler was praised for death-overs and won POT in 2024?', options: ['Mohammad Shami','Jasprit Bumrah','Bhuvneshwar Kumar','Deepak Chahar'], answer: 1 },
+    { q: 'Which country made its T20 World Cup debut in 2024 and upset Pakistan?', options: ['USA','Nepal','Uganda','Netherlands'], answer: 0 },
+    { q: 'Who took a crucial boundary-line catch in the 2024 final?', options: ['Hardik Pandya','Axar Patel','Suryakumar Yadav','Ravindra Jadeja'], answer: 2 },
+    { q: 'Which Afghan bowler topped early wicket charts and finished as leading wicket-taker?', options: ['Rashid Khan','Naveen-ul-Haq','Fazalhaq Farooqi','Mujeeb Ur Rahman'], answer: 2 },
+    { q: 'Rishabh Pant primarily played as what in India\'s XI during 2024 WC?', options: ['Opener','Middle-order & wicket-keeper','All-rounder','Specialist finisher'], answer: 1 },
+    { q: 'Which stadium in the USA hosted the India vs Pakistan group match (2024)?', options: ['Lauderhill, Florida','Eisenhower Park, New York (Nassau County Int\'l Cricket Stadium)','Grand Prairie, Texas','Dallas Cricket Park'], answer: 1 },
+    { q: 'Who bowled the final over for India in the 2024 final?', options: ['Hardik Pandya','Jasprit Bumrah','Arshdeep Singh','Axar Patel'], answer: 0 },
+    { q: 'India\'s unbeaten run ended for which team? (Trick)', options: ['They remained unbeaten and won the title','Lost to Australia','Lost to England','Lost to South Africa'], answer: 0 },
+    { q: 'What was India\'s T20 World Cup title count after 2024?', options: ['First title','Second title','Third title','Fourth title'], answer: 1 },
+    { q: 'Who was India\'s head coach during the 2024 T20 World Cup?', options: ['Rahul Dravid','VVS Laxman','Ricky Ponting','Gautam Gambhir'], answer: 0 },
+    { q: 'Which Indian left-arm seamer had a strong tournament with new ball and death overs?', options: ['Mukesh Kumar','Arshdeep Singh','Prasidh Krishna','T Natarajan'], answer: 1 },
+    { q: 'Which team did the USA defeat in a famous Super Over during 2024 group stage?', options: ['Netherlands','Pakistan','Bangladesh','Sri Lanka'], answer: 1 }
+  ];
 
-  <script>
-    let timerInterval;
-    let timeLeft = 300; // 5 minutes
-    let results = [];
+  // ========= STATE =========
+  let secondsLeft = TIME_LIMIT_MINUTES * 60;
+  let timerId = null;
+  let student = {};
 
-    function startExam() {
-      const name = document.getElementById("studentName").value;
-      if (!name) { alert("Please enter your name"); return; }
-      document.getElementById("loginDiv").classList.add("hidden");
-      document.getElementById("examDiv").classList.remove("hidden");
-      startTimer();
+  // ========= INIT =========
+  document.getElementById('startBtn').addEventListener('click', startTest);
+  document.getElementById('submitBtn').addEventListener('click', submitQuiz);
+  document.getElementById('downloadCsvBtn').addEventListener('click', downloadCSV);
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if(confirm('Clear all stored results on this device?')){
+      localStorage.removeItem('examResults');
+      alert('Cleared.');
+    }
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key.toLowerCase() === 't') {
+      const pass = prompt('Enter teacher password:');
+      if (pass === TEACHER_PASSWORD) {
+        document.getElementById('teacherCard').classList.remove('hidden');
+        window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'});
+      } else {
+        alert('Wrong password');
+      }
+    }
+  });
+
+  // ========= FUNCTIONS =========
+  function startTest(){
+    const name = document.getElementById('name').value.trim();
+    const roll = document.getElementById('roll').value.trim();
+    const klass = document.getElementById('klass').value.trim();
+    const school = document.getElementById('school').value.trim();
+    if(!name || !roll || !klass || !school){
+      alert('Please fill all details.');
+      return;
+    }
+    student = {name, roll, klass, school};
+    renderQuestions();
+    document.getElementById('regCard').classList.add('hidden');
+    document.getElementById('quizCard').classList.remove('hidden');
+    secondsLeft = TIME_LIMIT_MINUTES * 60;
+    updateTimer();
+    timerId = setInterval(() => {
+      secondsLeft--; updateTimer(); updateProgress();
+      if(secondsLeft <= 0){ clearInterval(timerId); autoSubmit(); }
+    }, 1000);
+  }
+
+  function updateTimer(){
+    const m = String(Math.floor(secondsLeft/60)).padStart(2,'0');
+    const s = String(secondsLeft%60).padStart(2,'0');
+    document.getElementById('timer').textContent = `${m}:${s}`;
+  }
+
+  function updateProgress(){
+    const qAnswered = [...document.querySelectorAll('.question input[type=radio]:checked')].length;
+    const pct = Math.min(100, Math.round((qAnswered/QUESTIONS.length)*100));
+    document.getElementById('progressBar').style.width = pct + '%';
+  }
+
+  function renderQuestions(){
+    const wrap = document.getElementById('questions');
+    wrap.innerHTML = '';
+    QUESTIONS.forEach((q,idx)=>{
+      const div = document.createElement('div');
+      div.className = 'question';
+      const num = idx+1;
+      div.innerHTML = `<h3>Q${num}. ${q.q}</h3>` +
+        q.options.map((opt,oi)=>{
+          const id = `q${idx}_${oi}`;
+          return `<label class='option'><input id='${id}' type='radio' name='q${idx}' value='${oi}' onchange='updateProgress()'><span>${String.fromCharCode(65+oi)}.</span> ${opt}</label>`
+        }).join('');
+      wrap.appendChild(div);
+    });
+  }
+
+  function autoSubmit(){
+    alert('Time is up! Your answers will be submitted now.');
+    submitQuiz();
+  }
+
+  async function submitQuiz(){
+    if(timerId) clearInterval(timerId);
+
+    const answers = QUESTIONS.map((q, idx) => {
+      const sel = document.querySelector(`input[name=q${idx}]:checked`);
+      return sel ? Number(sel.value) : null; // null for unattempted
+    });
+    const correctCount = answers.reduce((acc,a,i)=> acc + (a===QUESTIONS[i].answer ? 1 : 0), 0);
+
+    // Compose payload
+    const payload = {
+      ...student,
+      score: correctCount,
+      total: QUESTIONS.length,
+      percentage: Math.round((correctCount/QUESTIONS.length)*100),
+      answers,
+      submittedAt: new Date().toISOString()
+    };
+
+    // Save locally (for teacher panel on this device)
+    try{
+      const history = JSON.parse(localStorage.getItem('examResults')||'[]');
+      history.push(payload);
+      localStorage.setItem('examResults', JSON.stringify(history));
+    }catch(e){/* ignore */}
+
+    // Optional: POST to webhook for central collection (Google Apps Script / serverless)
+    if(RESULTS_WEBHOOK){
+      try{
+        await fetch(RESULTS_WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+      }catch(e){ console.warn('POST failed', e); }
     }
 
-    function startTimer() {
-      timerInterval = setInterval(() => {
-        document.getElementById("timer").innerText = "Time Left: " + timeLeft + "s";
-        timeLeft--;
-        if (timeLeft < 0) {
-          clearInterval(timerInterval);
-          submitExam();
-        }
-      }, 1000);
-    }
+    // Hide quiz, show thank you
+    document.getElementById('quizCard').classList.add('hidden');
+    document.getElementById('thankCard').classList.remove('hidden');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
 
-    function submitExam() {
-      clearInterval(timerInterval);
-      const form = document.getElementById("examForm");
-      const formData = new FormData(form);
-      const answers = {};
-      formData.forEach((val, key) => { answers[key] = val; });
+  function downloadCSV(){
+    const data = JSON.parse(localStorage.getItem('examResults')||'[]');
+    if(!data.length){ alert('No results stored on this device yet.'); return; }
 
-      results.push({
-        name: document.getElementById("studentName").value,
-        answers: answers,
-        submittedAt: new Date().toLocaleString()
-      });
+    const headers = ['Name','Roll','Class','School','Score','Total','Percentage','SubmittedAt','Answers'];
+    const rows = data.map(r => [r.name,r.roll,r.klass,r.school,r.score,r.total,r.percentage+"%",r.submittedAt, JSON.stringify(r.answers)]);
+    const csv = [headers.join(','), ...rows.map(x=>x.map(v => String(v).replaceAll('"','""')).join(','))].join('\n');
 
-      document.getElementById("examDiv").classList.add("hidden");
-      document.getElementById("thankYouDiv").classList.remove("hidden");
-    }
-
-    function downloadResults() {
-      let csv = "Name,Submitted At,Answers\n";
-      results.forEach(r => {
-        csv += `${r.name},${r.submittedAt},${JSON.stringify(r.answers)}\n`;
-      });
-
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "results.csv";
-      link.click();
-    }
-  </script>
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 't20wc2024_results.csv'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }
+</script>
 </body>
 </html>
+
